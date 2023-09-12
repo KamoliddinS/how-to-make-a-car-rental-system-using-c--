@@ -178,3 +178,43 @@ HOUR: 12
 PAYMENT: 60
 DATE: 19/09/2020 TIME: 10:15:58
 ==========================================================
+NAME: Kamoliddin
+PHONE: 997234823
+IC: 23423
+CAR: PDC602
+BRAND: PROTON
+MODEL: SAGA
+HOUR: 3
+PAYMENT: 24
+DATE: 12/09/2023 TIME: 11:25:13
+==========================================================
+NAME: Kamoliddin
+PHONE: 997234823
+IC: 23423
+CAR: ABC124
+BRAND: SHAZIQ
+MODEL: AZIM
+HOUR: 6
+PAYMENT: 30
+DATE: 12/09/2023 TIME: 11:47:09
+==========================================================
+NAME: ajis
+PHONE: 454212
+IC: 212313132
+CAR: PDC602
+BRAND: PROTON
+MODEL: SAGA
+HOUR: 4
+PAYMENT: 32
+DATE: 12/09/2023 TIME: 12:59:41
+==========================================================
+NAME: Kamoliddin
+PHONE: 997234823
+IC: 23423
+CAR: PDC602
+BRAND: PROTON
+MODEL: SAGA
+HOUR: 3
+PAYMENT: 24
+DATE: 12/09/2023 TIME: 13:01:35
+==========================================================

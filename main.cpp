@@ -1,14 +1,19 @@
 #include <iostream>
-#include <conio.h>
 #include <fstream>
-#include <windows.h>
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
 #include <cstdlib>
 
+#include <thread>
+#include <chrono>
 
 
+#ifdef _WIN32  // For Windows
+#define CLEAR_SCREEN "cls"
+#else  // For Linux and macOS
+#define CLEAR_SCREEN "clear"
+#endif
 using namespace std;
 
 void customerData();
@@ -20,7 +25,7 @@ void carData ();
 void admin();
 void user();
 void menu();
-void fullscreen();
+// void fullscreen();
 void art();
 void exitArt();
 void newCarData();
@@ -86,13 +91,13 @@ struct pass
 	customer cust[1000];
 	car avail[1000];
 	
-void fullscreen()
-{
-	keybd_event(VK_MENU,0x38,0,0);
-	keybd_event(VK_RETURN,0x1c,0,0);
-	keybd_event(VK_RETURN,0x1c,KEYEVENTF_KEYUP,0);
-	keybd_event(VK_MENU,0x38,KEYEVENTF_KEYUP,0);
-}
+// void fullscreen()
+// {
+// 	keybd_event(VK_MENU,0x38,0,0);
+// 	keybd_event(VK_RETURN,0x1c,0,0);
+// 	keybd_event(VK_RETURN,0x1c,KEYEVENTF_KEYUP,0);
+// 	keybd_event(VK_MENU,0x38,KEYEVENTF_KEYUP,0);
+// }
 
 const string currentDateTime() 
 {
@@ -124,9 +129,10 @@ void time()
 	{
 	Boarder();
 	gotoxy(20,20);
-	std::cout <<"\n\n\n\n\n\t  |\t\t\t\tDATE: "<<currentDateTime() << std::endl;
-	Sleep(900);
-	system("cls");
+	cout <<"\n\n\n\n\n\t  |\t\t\t\tDATE: "<<currentDateTime() << endl;
+	this_thread::sleep_for(chrono::milliseconds(900));
+	system(CLEAR_SCREEN);
+
 	i++;
 	}
 	menu();
@@ -140,23 +146,27 @@ void date()
 
 void readUserPass()
 {
-	ifstream ifs;
-	ifs.open("UserPass.txt");
-	
-	int i;
-	while(!ifs.eof())
-	{
-		ifs>>userPass[i].ID;
-		ifs.ignore();
-		ifs.getline(userPass[i].passWord,20);
-		i++;
-	}
-	ifs.close();
+    ifstream ifs("UserPass.txt");
+    
+    int i = 0;
+    while(ifs >> userPass[i].ID)
+    {
+        ifs.ignore();
+        ifs.getline(userPass[i].passWord, 20);
+        i++;
+
+        // Check if the array is full
+        if(i >= sizeof(userPass) / sizeof(userPass[0]))
+        {
+            break;
+        }
+    }
+    ifs.close();
 }
 
 void password()
 {
-	Boarder();
+   Boarder();
 	
    countUser();
    string password;
@@ -164,12 +174,27 @@ void password()
    gotoxy(40,20);
    cout << "\n\n\n\n\t  |\t\t\tPASSWORD: ";
 
-	while(c != '\r') //Loop until 'Enter' is pressed
+	while(c != '\r' && c != '\n')
          {
-         c = getch();
+		 #ifdef _WIN32  // For Windows
+		 #include <conio.h>
+
+		 c = getch();
+		 #else
+         c = cin.get();;
+		 #endif
+
          if(c == 0)
             {
-            switch(getch())
+			char input; 
+
+			#ifdef _WIN32  // For Windows
+			#include <conio.h>
+			input = getch();
+			#else
+			input = cin.get();
+			#endif
+            switch(input)
                {
                default:
                   break;            
@@ -197,7 +222,8 @@ void password()
          {
          	if(password.compare(userPass[i].passWord)==0)
          	{
-         		system("cls");
+         		system(CLEAR_SCREEN);
+
 		 		load_CHECK();
           		admin();
 			 }
@@ -206,7 +232,8 @@ void password()
 		 
           if(password == "a")
           	{
-          system("cls");
+          system(CLEAR_SCREEN);
+
 		  load_CHECK();
           admin();
       		}
@@ -215,28 +242,37 @@ void password()
           cout<<"\n\t  |\t\t\tWrong Password.. Call Administrator";
           cout<<"\n\t  |\t\t\tReturning to Main Menu.."<<endl;
           cout<<"\n\t  |\t\t\t";
-		  Sleep(1000);
+		  this_thread::sleep_for(chrono::milliseconds(1000));
+
           cout<<"\n\t  |\t\t\tPress Enter to Continue.";
           cout<<"\n\t  |\t\t\t";
-          getch();
+          cin.get();
           menu();
          
 	
 	
 }
 
+#ifdef _WIN32  // For Windows
+#include <windows.h>
+
 void gotoxy(int x, int y)
 {
-
- COORD coord;
-
- coord.X = x;
-
- coord.Y = y;
-
- SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
-
+    COORD coord;
+    coord.X = x;
+    coord.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
+
+#else  // For Linux and macOS
+#include <stdio.h>
+
+void gotoxy(int x, int y)
+{
+    printf("\033[%d;%dH", y, x);
+}
+
+#endif
 
 void load()
 {
@@ -249,11 +285,13 @@ void load()
     gotoxy(60,36);
     for(r=1;r<=timer;r++)
 	{
-    for(q=0;q<=100000000;q++);//to display the character slowly
+    // for(q=0;q<=100000000;q++);//to display the character slowly
     printf("%c",177);
 	}
-    Sleep(100);
-    system("cls");
+    this_thread::sleep_for(chrono::milliseconds(100));
+
+    system(CLEAR_SCREEN);
+
 }
 
 void load_CHECK()
@@ -269,8 +307,10 @@ void load_CHECK()
     for(q=0;q<=100000000;q++);//to display the character slowly
     printf("%c",177);
 	}
-    Sleep(100);
-    system("cls");
+    this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    system(CLEAR_SCREEN);
+
 }
 
 void load_UPDATE()
@@ -287,8 +327,10 @@ void load_UPDATE()
     for(q=0;q<=100000000;q++);//to display the character slowly
     printf("%c",177);
 	}
-    Sleep(100);
-    system("cls");
+    this_thread::sleep_for(chrono::milliseconds(100));
+
+    system(CLEAR_SCREEN);
+
 }
 
 void load_EXIT()
@@ -305,9 +347,13 @@ void load_EXIT()
     for(q=0;q<=100000000;q++);//to display the character slowly
     printf("%c",177);
 	}
-    Sleep(100);
-    system("cls");
+    this_thread::sleep_for(chrono::milliseconds(100));
+    system(CLEAR_SCREEN);
+
 }
+
+#ifdef _WIN32  // For Windows
+#include <windows.h>
 
 void GotoXY(int x, int y)
 {
@@ -318,12 +364,23 @@ void GotoXY(int x, int y)
     b.Y = y;
     a = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleCursorPosition(a,b);
- }
+}
+
+#else  // For Linux and macOS
+#include <stdio.h>
+
+void GotoXY(int x, int y)
+{
+    printf("\033[%d;%dH", y, x);
+}
+
+#endif
 
 void Boarder()
 {
 int i;
-   system("cls");
+   system(CLEAR_SCREEN);
+
    for(i=10;i<140;i++)
    {
        GotoXY(i,10);
@@ -392,7 +449,8 @@ void welcome()
 	}
 	cout<<"\n\t  |\t\t\t\t\t\t\t";
 	ifs.close ();
-	Sleep(1000);
+	this_thread::sleep_for(chrono::milliseconds(1000));
+
 	
 }
     
@@ -419,7 +477,8 @@ void exitArt()
 	}
     cout<<"\n\t  |\t\t\t\t\t\t\t";
     ifs.close ();
-    Sleep(3000);
+    this_thread::sleep_for(chrono::milliseconds(3000));
+
     exit(0);
 }
 
@@ -654,8 +713,10 @@ void existingCust()
 	log<<"\n==========================================================";
 	log.close();
 
-	Sleep(5000);
-	system("cls");
+	this_thread::sleep_for(chrono::milliseconds(5000));
+
+	system(CLEAR_SCREEN);
+
 	menu();
 }
 
@@ -710,7 +771,8 @@ void newCustData ()
 	ofs.close();
 	
 	
-	system("cls");
+	system(CLEAR_SCREEN);
+
 	
 	int tempCust, hour;
 	char carSelect[10];
@@ -799,8 +861,10 @@ void newCustData ()
 	availTemp.close();
 	availCar();
 	
-	Sleep(5000);
-	system("cls");
+	this_thread::sleep_for(chrono::milliseconds(5000));
+
+	system(CLEAR_SCREEN);
+
 	menu();
 }
 
@@ -866,7 +930,8 @@ void newCarData()
 	ofs << rent[newCar].transmission;
 	
 	ofs.close();
-	system("cls");
+	system(CLEAR_SCREEN);
+
 	
 	carData();
 	admin();
@@ -955,16 +1020,31 @@ void newUserPass()
 	
 	string password;
 	char c;
+	char input;
 	gotoxy(40,20);
 	cout << "\n\n\n\n\t  |\t\t\tID(DEFAULT): "<<userPass[countUser()].ID;
 	cout << "\n\t  |\t\t\tADD PASSWORD: ";
 
-	while(c != '\r') //Loop until 'Enter' is pressed
+	while(c != '\r' && c != '\n') //While loop until enter is pressed
          {
-         c = getch();
-         if(c == 0)
+		 #ifdef _WIN32  // For Windows
+		 #include <conio.h>
+		 c= getch();
+		 #else  // For Linux and macOS
+		
+         c = cin.get();
+         
+		 #endif
+
+		 if(c == 0)
             {
-            switch(getch())
+			#ifdef _WIN32  // For Windows
+			#include <conio.h>
+			input = getch();
+			#else  // For Linux and macOS
+			input = cin.get();
+			#endif
+            switch(input)
                {
                default:
                   break;            
@@ -996,7 +1076,8 @@ void newUserPass()
 	ofs<<userPass[countUser()].passWord;
 	ofs<<endl;	
 	
-	system("cls");
+	system(CLEAR_SCREEN);
+
 	admin();
 
 }
@@ -1024,7 +1105,8 @@ void showCarData()
 	cout<<"\t  |\t\t\t\t\tINPUT :";
 	cin >> x;
 	
-	system("cls");
+	system(CLEAR_SCREEN);
+
 	
 	if (x==1)
 	{
@@ -1083,7 +1165,8 @@ void admin()
 	cin>>x;
 	
 	
-	system("cls");
+	system(CLEAR_SCREEN);
+
 	
 	if (x==6)
 	{
@@ -1110,7 +1193,8 @@ void admin()
 		newUserPass();
 	}
 	else if(x==5)
-	system("cls");
+	system(CLEAR_SCREEN);
+
 		resetAvail();
 }
 
@@ -1129,7 +1213,8 @@ void user()
 	cout<<"\n\n\t  |\t\t\t\t\t\t\tINPUT :";
 	cin>>x;
 
-	system("cls");
+	system(CLEAR_SCREEN);
+
 	if (x==1)
 	{
 		newCustData();
@@ -1137,7 +1222,8 @@ void user()
 	
 	else if (x==2)
 	{
-		system("cls");
+		system(CLEAR_SCREEN);
+
 		load_UPDATE();
 		existingCust();
 	}
@@ -1167,7 +1253,8 @@ void menu()
 	cin>>x;
 	
 	
-	system("cls");
+	system(CLEAR_SCREEN);
+
 	
 	if (x==2)
 	{
@@ -1183,7 +1270,7 @@ void menu()
 	{
 	
 	tNc();
-	getch();
+	cin.get();
 	}
 	
 	if(x==5)
@@ -1193,13 +1280,19 @@ void menu()
 	{
 		cout << "\n\n\n\n";
 		exitArt();
+
+		#ifdef _WIN32
+		#include <windows.h>
 		Sleep(1000);
+		#else
+		this_thread::sleep_for(chrono::milliseconds(1000));
+		#endif
 		exit(0);
 	}
 		
 	else if (x==6)
 	{
-		fullscreen();
+		// fullscreen();
 		menu();
 	}	
 		
@@ -1263,7 +1356,8 @@ void delCar()
 	rename("temp.txt","car rental.txt");
 	
 	
-	system("cls");
+	system(CLEAR_SCREEN);
+
 	
 	carData();
 	admin();
@@ -1284,14 +1378,14 @@ void tNc()
 	cout<<"\n\n\n\n\t  |\t\t\t                             PRESS ANY KEY TO CONTINUE :)";
 	cout<<"\n\t  |\t\t\t                                                            ";
 	
-	getch();
+	cin.get();
 	menu();
 }
 
-main()
+int main()
 {
 	
-	fullscreen();
+	// fullscreen();
 	welcome();
 	load();
 	Boarder();
@@ -1300,6 +1394,6 @@ main()
 	customerData();
 	carData();
 	menu();
+	return 0;
 
-	
 }
