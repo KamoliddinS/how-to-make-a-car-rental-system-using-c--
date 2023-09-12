@@ -246,7 +246,12 @@ void password()
 
           cout<<"\n\t  |\t\t\tPress Enter to Continue.";
           cout<<"\n\t  |\t\t\t";
+		  #ifdef _WIN32  // For Windows
+		  #include <conio.h>
+			getch();
+		  #else 
           cin.get();
+		  #endif
           menu();
          
 	
